@@ -1,30 +1,44 @@
+import { storageService } from "./async-storage.service.js";
+import { utilService } from "./util.service.js";
 
-import { storageService } from './async-storage.service.js'
-import { utilService } from './util.service.js'
+import Axios from "axios";
+const axios = Axios.create({
+  withCredentials: true,
+});
 
-const STORAGE_KEY = 'bugDB'
+const BASE_URL = "http://localhost:3030/api/bug/";
 
 export const bugService = {
-    query,
-    getById,
-    save,
-    remove,
-}
+  query,
+  getById,
+  save,
+  remove,
+};
 
-
-function query() {
-    return storageService.query(STORAGE_KEY)
+function query(filterBy = {}) {
+  filterBy = { ...filterBy };
+  return axios
+    .get(BASE_URL)
+    .then((res) => res.data)
+    .then((bugs) => {
+      if (!filterBy.title) filterBy.title = "";
+      if (!filterBy.maxSeverity) filterBy.maxSeverity = Infinity;
+      if (!filterBy.minSeverity) filterBy.minSeverity = -Infinity;
+      const regExp = new RegExp(filterBy.title, "i");
+      return bugs.filter(
+        (bug) =>
+          regExp.test(bug.title) &&
+          bug.severity <= filterBy.maxSeverity &&
+          bug.severity >= filterBy.minSeverity
+      );
+    });
 }
 function getById(bugId) {
-    return storageService.get(STORAGE_KEY, bugId)
+  return axios.get(BASE_URL + bugId).then((res) => res.data);
 }
 function remove(bugId) {
-    return storageService.remove(STORAGE_KEY, bugId)
+  return axios.get(BASE_URL + bugId + "/remove");
 }
 function save(bug) {
-    if (bug._id) {
-        return storageService.put(STORAGE_KEY, bug)
-    } else {
-        return storageService.post(STORAGE_KEY, bug)
-    }
+  return axios.get(BASE_URL + "save", { params: bug }).then((res) => res.data);
 }

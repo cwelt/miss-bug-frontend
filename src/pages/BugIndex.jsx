@@ -1,18 +1,25 @@
 import { bugService } from "../services/bug.service.js";
 import { showSuccessMsg, showErrorMsg } from "../services/event-bus.service.js";
 import { BugList } from "../cmps/BugList.jsx";
+import { BugFilter } from "../cmps/BugFilter.jsx";
 import { useState } from "react";
 import { useEffect } from "react";
 
 export function BugIndex() {
   const [bugs, setBugs] = useState([]);
+  const [filterBy, setFilterBy] = useState({
+    title: "",
+    minSeverity: 1,
+    maxSeverity: 5,
+    description: "",
+  });
 
   useEffect(() => {
     loadBugs();
-  }, []);
+  }, [filterBy]);
 
   async function loadBugs() {
-    const bugs = await bugService.query();
+    const bugs = await bugService.query(filterBy);
     setBugs(bugs);
   }
 
@@ -68,6 +75,11 @@ export function BugIndex() {
       <h3>Bugs App</h3>
       <main>
         <button onClick={onAddBug}>Add Bug ⛐</button>
+        <BugFilter
+          // key={JSON.stringify(filterBy)}
+          filterBy={structuredClone(filterBy)}
+          onSetFilterBy={setFilterBy}
+        />
         <BugList bugs={bugs} onRemoveBug={onRemoveBug} onEditBug={onEditBug} />
       </main>
     </section>

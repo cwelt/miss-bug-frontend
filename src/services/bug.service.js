@@ -22,12 +22,17 @@ function query(filterBy = {}) {
     .then((res) => res.data)
     .then((bugs) => {
       if (!filterBy.title) filterBy.title = "";
+      if (!filterBy.description) filterBy.description = "";
       if (!filterBy.maxSeverity) filterBy.maxSeverity = Infinity;
       if (!filterBy.minSeverity) filterBy.minSeverity = -Infinity;
-      const regExp = new RegExp(filterBy.title, "i");
+
+      const titleRegExp = new RegExp(filterBy.title, "i");
+      const descriptionRegExp = new RegExp(filterBy.description, "i");
+
       return bugs.filter(
         (bug) =>
-          regExp.test(bug.title) &&
+          titleRegExp.test(bug.title || "") &&
+          descriptionRegExp.test(bug.description || "") &&
           bug.severity <= filterBy.maxSeverity &&
           bug.severity >= filterBy.minSeverity
       );

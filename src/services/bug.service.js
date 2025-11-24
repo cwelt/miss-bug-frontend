@@ -44,6 +44,15 @@ function getById(bugId) {
 function remove(bugId) {
   return axios.delete(BASE_URL + bugId);
 }
-function save(bug) {
-  return axios.get(BASE_URL + "save", { params: bug }).then((res) => res.data);
+async function save(bugToSave) {
+  let url = BASE_URL + (bugToSave?._id || "");
+  let httpMethod = bugToSave?._id ? "put" : "post";
+
+  try {
+    const { data: savedBug } = await axios[httpMethod](url, bugToSave);
+    return savedBug;
+  } catch (err) {
+    console.error("Error saving bug:", err);
+    throw err;
+  }
 }

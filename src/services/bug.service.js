@@ -42,7 +42,7 @@ function getById(bugId) {
   return axios.get(BASE_URL + bugId).then((res) => res.data);
 }
 function remove(bugId) {
-  return axios.get(BASE_URL + bugId + "/remove");
+  return axios.delete(BASE_URL + bugId);
 }
 function save(bug) {
   return axios.get(BASE_URL + "save", { params: bug }).then((res) => res.data);
